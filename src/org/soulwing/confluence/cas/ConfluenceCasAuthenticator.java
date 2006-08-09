@@ -21,21 +21,16 @@ package org.soulwing.confluence.cas;
 
 import java.security.Principal;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.atlassian.seraph.auth.AuthenticatorException;
-import com.atlassian.confluence.user.ConfluenceAuthenticator;
-import com.atlassian.seraph.config.SecurityConfig;
-import com.atlassian.seraph.interceptor.LogoutInterceptor;
+import org.apache.log4j.Logger;
+import org.jasig.cas.client.validation.Assertion;
+import org.jasig.cas.client.web.filter.AbstractCasFilter;
 
-import edu.yale.its.tp.cas.client.filter.CASFilter;
+import com.atlassian.confluence.user.ConfluenceAuthenticator;
+import com.atlassian.seraph.auth.AuthenticatorException;
+
 
 /**
  * Subclass of ConfluenceAuthenticator that provides CAS authentication for
@@ -80,21 +75,22 @@ public class ConfluenceCasAuthenticator extends ConfluenceAuthenticator {
 
     Principal user = null;
     try {
-      String username = (String) 
-          request.getSession().getAttribute(CASFilter.CAS_FILTER_USER);
-      if (username != null) {
-        user = getUser(username);
+      Assertion assertion = (Assertion) request.getSession().getAttribute(AbstractCasFilter.CONST_ASSERTION);
+      if (assertion != null) {
+        user = getUser(assertion);
         if (user != null) {
           request.getSession().setAttribute(LOGGED_IN_KEY, user);
           request.getSession().setAttribute(LOGGED_OUT_KEY, null);
-        }
-        else {
-          log.error("getUser() for CAS user " + username + " returned null");
+        } else {
+          log.error("getUser() for CAS user " + assertion.getPrincipal().getId() + " returned null");
+          return null;
         }
       }
       else {
         // no CAS user... use default implementation.
         log.debug("delegating to ConfluenceAuthenticator (no CAS user)");
+      }
+      if (user == null) {
         user = super.getUser(request, response);
       }
     } catch (Exception ex) {
@@ -102,6 +98,17 @@ public class ConfluenceCasAuthenticator extends ConfluenceAuthenticator {
     }
     return user;
 
+  }
+
+  protected Principal getUser(Assertion assertion) {
+    Principal user = null;
+    String username = assertion.getPrincipal().getId();
+    if (username != null) {
+      user = getUser(username);
+    } else {
+      log.error("CAS Assertion contained null principal!");
+    }
+    return user;
   }
 
   /**
@@ -153,13 +160,13 @@ public class ConfluenceCasAuthenticator extends ConfluenceAuthenticator {
       log.debug("delegating to ConfluenceAuthenticator (CASFilter bypassed)");
       return super.login(request, response, username, password, cookie);
     }
-    String casUsername = (String)
-        request.getSession().getAttribute(CASFilter.CAS_FILTER_USER);
-    if (casUsername != null) {
+    Assertion assertion = (Assertion)
+        request.getSession().getAttribute(AbstractCasFilter.CONST_ASSERTION);
+    if (assertion != null) {
       return true;
     }
     else {
-      log.debug("delegating to ConfluenceAuthenticator (no CAS user)");
+      log.debug("delegating to ConfluenceAuthenticator (no CAS assertion)");
       return super.login(request, response, username, password, cookie);
     }
   }

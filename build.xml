@@ -35,9 +35,11 @@
   <target name="init">
     <tstamp/>
     <mkdir dir="${build}"/>
-    <jar destfile="${build}/confluence-user.jar"
-         basedir="${conf_classes}" 
-      includes="com/atlassian/confluence/user/ConfluenceAuthenticator.class" />
+    <jar destfile="lib/confluence-user.jar"
+         basedir="${conf_classes}" >
+      <include name="com/atlassian/confluence/user/ConfluenceAuthenticator.class" />
+      <include name="com/atlassian/confluence/user/UserAccessor.class" />
+	</jar>
   </target>
 
   <target name="compile" depends="init"
