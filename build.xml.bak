@@ -1,0 +1,95 @@
+<!--
+  Ant build script for Confluence CAS Client package
+  Carl Harris, 17 Feb 2006
+  ceharris414@yahoo.com
+-->
+<project name="Confluence CAS Client" default="dist" basedir=".">
+  <fail unless="version">You must define the release version using -Dversion=x.y.z</fail>
+  <property name="package_dir" value="confluence-cas-${version}"/>
+  <property environment="env"/>
+  <fail unless="env.CONF_HOME">You must set CONF_HOME to the directory location where Confluence is installed.</fail>
+  <property name="base" location="."/>
+  <property name="src" value="src"/>
+  <property name="docs" value="apidocs"/>
+  <property name="dist" value="dist"/>
+  <property name="conf_classes" 
+            location="C:/Source/confluence/confluence/WEB-INF/classes"/>
+  <property name="conf_lib" 
+            location="C:/Source/confluence/confluence/WEB-INF/lib"/>
+  <property name="build" location="build"/>
+  <property name="dist_zip" value="confluence-cas-${version}.zip"/>
+  <property name="client_jar" value="confluence-cas.jar"/>
+  <property name="user_jar" value="confluence-user.jar"/>
+  <property name="cas_lib" location="lib/cas-client-java-2.1.1"/>
+  <property name="cas_jar" location="${cas_lib}/dist/casclient.jar"/>
+
+  <path id="class.path">
+    <fileset dir="${build}" includes="${user_jar}" />
+    <fileset dir="lib" includes="**/*.jar" />
+    <fileset dir="${conf_lib}">
+      <include name="log4j-1.2.8.jar"/>
+      <include name="seraph-0.7.20.jar"/>
+    </fileset>
+  </path>
+  
+  <target name="init">
+    <tstamp/>
+    <mkdir dir="${build}"/>
+    <jar destfile="${build}/confluence-user.jar"
+         basedir="${conf_classes}" 
+      includes="com/atlassian/confluence/user/ConfluenceAuthenticator.class" />
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath refid="class.path" />
+    </javac>
+  </target>
+ 
+  <target name="javadocs"
+          description="generate javadocs">
+    <mkdir dir="${docs}"/>
+    <javadoc destdir="${docs}" classpathref="class.path" 
+             overview="${src}/overview.html" 
+             windowtitle="CAS Client for Confluence"> 
+      <fileset dir="${src}" includes="**/*.java"/>
+    </javadoc>
+  </target>
+
+  <target name="dist" depends="compile, javadocs"
+          description="builds the distribution">
+    <mkdir dir="${dist}"/>
+    <jar destfile="${dist}/${client_jar}" basedir="${build}"
+         excludes="${user_jar}"/>
+    <mkdir dir="${package_dir}"/>
+    <copy todir="${package_dir}">
+      <fileset dir="${base}" includes="${src}/**/*.java" />
+      <fileset dir="${base}" includes="${docs}/**" />
+      <fileset dir="${base}" includes="${dist}/${client_jar}" />
+      <fileset dir="${base}" includes="build.xml" />
+    </copy>
+    <zip destfile="${dist_zip}">
+      <fileset dir="${base}" includes="${package_dir}/**"/>
+    </zip>
+  </target>
+  
+
+  <target name="install" depends="dist"
+          description="install the jar files">
+    <copy todir="${conf_lib}" file="${dist}/${client_jar}"/>
+    <copy todir="${conf_lib}" file="${cas_jar}"/>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+    <delete dir="${docs}"/>
+    <delete dir="${package_dir}"/>
+    <delete file="${dist_zip}"/>
+  </target>
+
+</project>
