@@ -1,42 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd" default-init-method="init">
 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
 	<bean id="propertyPlaceholderConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location"
-			value="/WEB-INF/cas-client.properties" />
+		<property name="location">
+			<value>/WEB-INF/cas-client.properties</value>
+		</property>
 	</bean>
 	
 	<bean id="ticketValidator"
-		class="org.jasig.cas.client.validation.UscmServiceTicketValidator">
-		<property name="proxyCallbackUrl"
-			value="${cas.server.proxyCallbackUrl}" />
-		<property name="proxyGrantingTicketStorage"
-			ref="proxyGrantingTicketStorage" />
-		<property name="casServerUrl" value="${cas.server.url}" />
+		class="org.uscm.cas.client.validation.UscmServiceTicketValidator"
+		init-method="init">
+		<!--
+		<property name="proxyCallbackUrl">
+			<value>${cas.server.proxyCallbackUrl}</value>
+		</property>
+		-->
+		<property name="proxyGrantingTicketStorage">
+			<ref bean="proxyGrantingTicketStorage" />
+		</property>
+		<property name="casServerUrl" >
+			<value>${cas.server.url}</value>
+		</property>
 		<property name="httpClient">
 			<bean class="org.jasig.cas.util.HttpClient3FactoryBean" />
 		</property>
 	</bean>
 
 	<bean id="proxyGrantingTicketStorage"
-		class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl" />
+		class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl"
+		init-method="init" />
 	
 	<bean
 		id="casHttpServletRequestWrapperFilter"
-		class="org.jasig.cas.client.web.filter.HttpServletRequestWrapperFilter" />
+		class="org.jasig.cas.client.web.filter.HttpServletRequestWrapperFilter"/>
 		
 	<bean
 		id="casValidationFilter"
-		class="org.jasig.cas.client.web.filter.CasValidationFilter">
+		class="org.jasig.cas.client.web.filter.CasValidationFilter"
+		init-method="init">
 		<property
-			name="ticketValidator"
-			ref="ticketValidator" />
+			name="ticketValidator">
+			<ref bean="ticketValidator" />
+		</property>
 		<property
-			name="serverName"
-			value="${cas.client.name}" />
+			name="serverName">
+			<value>${cas.client.name}</value>
+		</property>
 	</bean>
 	
 	<bean
@@ -47,56 +58,68 @@
          parameter is set, a user can navigate to the normal Confluence login 
          page to bypass CAS and be authenticated via Atlassian-user.
        -->
+	   <!--
 		<property
-			name="loginPath"
-			value="${confluence.loginPath}" />
+			name="loginPath">
+			<value>${confluence.loginPath}</value>
+		</property>
+		-->
        <!-- 
          This parameter specifies the Confluence path used for logout.  If this 
          parameter and the next parameter is set, clicking the Log Out link in 
          Confluence causes a global CAS logout.
        -->
 		<property
-			name="logoutPath"
-			value="${confluence.logoutPath}" />
+			name="logoutPath">
+			<value>${confluence.logoutPath}</value>
+		</property>
        <!-- 
          This parameter specifies the global logout URL for your CAS service.  It's
          used only if the previous logoutPath parameter is also configured.
        -->
 		<property
-			name="logoutUrl"
-			value="${cas.server.url}logout" />
+			name="logoutUrl">
+			<value>${cas.server.url}logout</value>
+		</property>
        <!-- 
          This parameter specifies a comma-delimited list of other Confluence paths that 
          should bypass CAS authentication.  The value shown here bypassses CAS for the 
          SOAP/XML-RPC API.
        -->
 		<property
-			name="bypassPrefixes"
-			value="${confluence.bypassPrefixes}" />
+			name="bypassPrefixes">
+			<value>${confluence.bypassPrefixes}</value>
+		</property>
        <!-- 
          This parameter should refer to a configured casAuthenticationFilter.  This
          filter will handle requests that are not bypassed.
        -->
 		<property
-			name="filter"
-			ref="casAuthenticationFilter" />
+			name="filter">
+			<ref bean="casAuthenticationFilter" />
+		</property>
 	</bean>
 	
 	<bean
 		id="casAuthenticationFilter"
-		class="org.jasig.cas.client.web.filter.CasAuthenticationFilter">
+		class="org.jasig.cas.client.web.filter.CasAuthenticationFilter"
+		init-method="init">
 		<property
-			name="casServerLoginUrl"
-			value="${cas.server.url}login" />
+			name="casServerLoginUrl">
+			<value>${cas.server.url}login</value>
+		</property>
 		<property
-			name="gateway"
-			value="${cas.server.gateway}" />
+			name="gateway">
+			<value>${cas.server.gateway}</value>
+		</property>
 		<property
-			name="renew"
-			value="${cas.server.renew}" />
+			name="renew">
+			<value>${cas.server.renew}</value>
+		</property>
 		<property
-			name="serverName"
-			value="${cas.client.name}" />
+			name="serverName">
+			<value>${cas.client.name}</value>
+		</property>
 	</bean>
 	
 	<!-- 
