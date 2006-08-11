@@ -233,6 +233,7 @@ public class ConfluenceCasFilter implements Filter {
         sb.append('?');
       }
       sb.append(AbstractCasFilter.PARAM_TICKET);
+      sb.append("=");
       sb.append(ticket);
       String casLogout = sb.toString();
       log.debug("sending redirect to " + casLogout);
@@ -326,11 +327,11 @@ public class ConfluenceCasFilter implements Filter {
     }
   }
 
-  public Collection<String> getBypassPrefixes() {
+  public Collection<String> getBypassPrefixesList() {
     return bypassPrefixes;
   }
 
-  public void setBypassPrefixes(Collection<String> bypassPrefixes) {
+  public void setBypassPrefixesList(Collection<String> bypassPrefixes) {
     this.bypassPrefixes = bypassPrefixes;
   }
 
