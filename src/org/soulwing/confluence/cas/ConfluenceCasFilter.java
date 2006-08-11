@@ -219,6 +219,7 @@ public class ConfluenceCasFilter implements Filter {
       ticket = (String) request.getSession().getAttribute(CAS_FILTER_TICKET);
     }
     session.removeAttribute(AbstractCasFilter.CONST_ASSERTION);
+    request.removeAttribute(AbstractCasFilter.CONST_PRINCIPAL);
     session.removeAttribute(CAS_FILTER_TICKET);
 
     // If we have a logoutUrl and we have a ticket for this user, redirect the
