@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <display-name>Confluence</display-name>
+    <description>Confluence Web App</description>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath:/applicationContext.xml,
+            classpath:/securityContext.xml,
+            classpath:/databaseSubsystemContext.xml,
+            classpath:/indexingSubsystemContext.xml,
+            classpath:/eventSubsystemContext.xml,
+            classpath:/rpcSubsystemContext.xml,
+            classpath:/upgradeSubsystemContext.xml,
+            classpath:/wikiSubsystemContext.xml,
+            classpath:/wikiFiltersSubsystemContext.xml,
+            classpath:/importExportSubsystemContext.xml,
+            classpath:/schedulingSubsystemContext.xml,
+            classpath:/pluginSubsystemContext.xml,
+            classpath:/atlassianUserContext.xml,
+			/WEB-INF/confluenceCasFilter.xml
+        </param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>contextClass</param-name>
+        <param-value>com.atlassian.confluence.setup.ConfluenceXmlWebApplicationContext</param-value>
+    </context-param>
+
+    <filter>
+        <filter-name>CAS Authentication Filter Proxy</filter-name>
+        <filter-class>org.jasig.cas.client.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetBean</param-name>
+            <param-value>confluenceCasAuthenticationFilter</param-value>
+        </init-param>
+    </filter>
+    
+    <filter>
+        <filter-name>CAS Validation Filter Proxy</filter-name>
+        <filter-class>org.jasig.cas.client.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetBean</param-name>
+            <param-value>casValidationFilter</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>johnson</filter-name>
+        <filter-class>com.atlassian.johnson.filters.JohnsonFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>sessioninview</filter-name>
+        <filter-class>com.atlassian.confluence.setup.spring.SpringSessionInViewFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>login</filter-name>
+        <filter-class>com.atlassian.seraph.filter.LoginFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>sitemesh</filter-name>
+        <filter-class>com.atlassian.confluence.util.profiling.ProfilingPageFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>encoding</filter-name>
+        <filter-class>com.atlassian.confluence.setup.ConfluenceEncodingFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>security</filter-name>
+        <filter-class>com.atlassian.seraph.filter.SecurityFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>userthreadlocal</filter-name>
+        <filter-class>com.atlassian.confluence.util.UserThreadLocalFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>servletcontextthreadlocal</filter-name>
+        <filter-class>com.atlassian.confluence.util.ServletContextThreadLocalFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>expires-one-hour</filter-name>
+        <filter-class>com.atlassian.confluence.util.ExpiresFilter</filter-class>
+        <init-param>
+            <!-- specify the which HTTP parameter to use to turn the filter on or off -->
+            <!-- if not specified - defaults to "profile.filter" -->
+            <param-name>expiryTimeInSeconds</param-name>
+            <param-value>3600</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>profiling</filter-name>
+        <filter-class>com.atlassian.confluence.util.error.ProfilingAndErrorFilter</filter-class>
+        <init-param>
+            <!-- specify the which HTTP parameter to use to turn the filter on or off -->
+            <!-- if not specified - defaults to "profile.filter" -->
+            <param-name>activate.param</param-name>
+            <param-value>profile</param-value>
+        </init-param>
+        <init-param>
+            <!-- specify the whether to start the filter automatically -->
+            <!-- if not specified - defaults to "true" -->
+            <param-name>autostart</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>AccessLogFilter</filter-name>
+        <filter-class>com.atlassian.confluence.util.AccessLogFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>CacheFilter</filter-name>
+        <filter-class>com.opensymphony.oscache.web.filter.CacheFilter</filter-class>
+        <init-param>
+            <param-name>lastModified</param-name>
+            <param-value>off</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>gzipFilter</filter-name>
+        <filter-class>com.atlassian.confluence.util.zip.ConfluenceGzipFilter</filter-class>
+    </filter>
+
+    <!-- THIS MUST REMAIN AS THE TOP FILTER SO THAT THE ENCODING CAN BE SET BEFORE ANYTHING ELSE TOUCHES IT -->
+    <filter-mapping>
+        <filter-name>encoding</filter-name>
+        <url-pattern>*.vm</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>encoding</filter-name>
+        <url-pattern>/display/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>encoding</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>encoding</filter-name>
+        <url-pattern>/download/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>encoding</filter-name>
+        <url-pattern>/plugins/servlet/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>encoding</filter-name>
+        <url-pattern>/label/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>CacheFilter</filter-name>
+        <url-pattern>/styles/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>gzipFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>profiling</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+<!-- uncomment this mapping in order to log page views to the access log, see log4j.properties also
+    <filter-mapping>
+        <filter-name>AccessLogFilter</filter-name>
+        <url-pattern>/display/*</url-pattern>
+    </filter-mapping>
+-->
+    <filter-mapping>
+        <filter-name>profiling</filter-name>
+        <url-pattern>*.vm</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>profiling</filter-name>
+        <url-pattern>/display/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>profiling</filter-name>
+        <url-pattern>/plugins/servlet/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>profiling</filter-name>
+        <url-pattern>/download/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>profiling</filter-name>
+        <url-pattern>/label/*</url-pattern>
+    </filter-mapping>
+
+    <!--filter-mapping>
+        <filter-name>sessioninview</filter-name>
+        <url-pattern>/rpc/*</url-pattern>
+    </filter-mapping-->
+
+    <filter-mapping>
+        <filter-name>sessioninview</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sessioninview</filter-name>
+        <url-pattern>*.vm</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sessioninview</filter-name>
+        <url-pattern>/display/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sessioninview</filter-name>
+        <url-pattern>/download/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sessioninview</filter-name>
+        <url-pattern>/plugins/servlet/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sessioninview</filter-name>
+        <url-pattern>/label/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sessioninview</filter-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>johnson</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>johnson</filter-name>
+        <url-pattern>*.vm</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>johnson</filter-name>
+        <url-pattern>/display/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>johnson</filter-name>
+        <url-pattern>/download/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>johnson</filter-name>
+        <url-pattern>/label/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>johnson</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>johnson</filter-name>
+        <url-pattern>/plugins/servlet/*</url-pattern>
+    </filter-mapping>
+    
+   <filter-mapping>
+      <filter-name>CAS Authentication Filter Proxy</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+   <filter-mapping>
+      <filter-name>CAS Validation Filter Proxy</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>login</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>security</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Must go after seraph -->
+    <filter-mapping>
+        <filter-name>userthreadlocal</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>userthreadlocal</filter-name>
+        <url-pattern>*.vm</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>userthreadlocal</filter-name>
+        <url-pattern>/display/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>userthreadlocal</filter-name>
+        <url-pattern>/label/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>userthreadlocal</filter-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>servletcontextthreadlocal</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>servletcontextthreadlocal</filter-name>
+        <url-pattern>*.vm</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>servletcontextthreadlocal</filter-name>
+        <url-pattern>/display/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>servletcontextthreadlocal</filter-name>
+        <url-pattern>/label/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>servletcontextthreadlocal</filter-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>servletcontextthreadlocal</filter-name>
+        <url-pattern>/rpc/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sitemesh</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sitemesh</filter-name>
+        <url-pattern>*.vm</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sitemesh</filter-name>
+        <url-pattern>/display/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sitemesh</filter-name>
+        <url-pattern>/label/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>expires-one-hour</filter-name>
+        <url-pattern>*.js</url-pattern>
+    </filter-mapping>
+    <!--<filter-mapping>
+        <filter-name>expires-one-hour</filter-name>
+        <url-pattern>*.css</url-pattern>
+    </filter-mapping>-->
+
+    <listener>
+        <listener-class>com.atlassian.confluence.setup.ConfluenceConfigurationListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>com.atlassian.confluence.util.ConfluenceContextLoaderListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>com.atlassian.confluence.user.listeners.UserSessionExpiryListener</listener-class>
+    </listener>
+
+    <!--<listener>
+        <listener-class>bucket.core.persistence.hibernate.schema.SchemaUpdateListener</listener-class>
+    </listener>-->
+
+    <!-- Check for upgrades, and automatically perform them if neccessary. -->
+    <listener>
+        <listener-class>com.atlassian.confluence.upgrade.ConfluenceUpgradeServletContextListener</listener-class>
+    </listener>
+
+    <!-- Check for the confluence.i18n.reloadbundles system property. If set, do not cache the localized
+    .properties files. -->
+    <listener>
+        <listener-class>com.atlassian.confluence.languages.ReloadBundlesContextListener</listener-class>
+    </listener>
+
+    <!-- CONF-4679. Listener to manually kick off scheduled jobs. We don't want scheduled jobs to auto-start and run, particularly when a user is upgrading -->
+    <listener>
+        <listener-class>com.atlassian.confluence.util.QuartzContextLoaderListener</listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>action</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.ConfluenceServletDispatcher</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>velocity</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.ConfluenceVelocityServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>simple-display</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.simpledisplay.SimpleDisplayServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>tiny-url</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.TinyUrlServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>file-server</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.FileServerServlet</servlet-class>
+        <load-on-startup>4</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>xmlrpc</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.SpringManagedServlet</servlet-class>
+        <init-param>
+            <param-name>springComponentName</param-name>
+            <param-value>xmlRpcServer</param-value>
+        </init-param>
+        <load-on-startup>6</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>trackback</servlet-name>
+        <servlet-class>com.atlassian.trackback.TrackbackListenerServlet</servlet-class>
+        <init-param>
+            <param-name>trackbackStore</param-name>
+            <param-value>com.atlassian.confluence.links.persistence.ConfluenceTrackbackStore</param-value>
+        </init-param>
+        <load-on-startup>7</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>glue-soap</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.SpringManagedServlet</servlet-class>
+        <init-param>
+            <param-name>springComponentName</param-name>
+            <param-value>glueSoapServer</param-value>
+        </init-param>
+        <load-on-startup>8</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>axis-soap</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.SpringManagedServlet</servlet-class>
+        <init-param>
+            <param-name>springComponentName</param-name>
+            <param-value>axisSoapServer</param-value>
+        </init-param>
+        <load-on-startup>8</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>servlet-module-container-servlet</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.ServletModuleContainerServlet</servlet-class>
+        <load-on-startup>9</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>css</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.CssServlet</servlet-class>
+        <load-on-startup>10</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>dwr-invoker</servlet-name>
+        <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>labels-javascript</servlet-name>
+        <servlet-class>com.atlassian.cache.servlet.CombinedCachingServlet</servlet-class>
+        <init-param>
+            <param-name>content.type</param-name>
+            <param-value>text/javascript</param-value>
+        </init-param>
+        <init-param>
+            <param-name>content.resolver.dwr</param-name>
+            <param-value>com.atlassian.cache.servlet.resolver.DwrContentResolver</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr1</param-name>
+            <param-value>/interface/AddLabelToEntity.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr2</param-name>
+            <param-value>/interface/RemoveLabelFromEntity.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr3</param-name>
+            <param-value>/interface/ViewLabelsForEntity.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr4</param-name>
+            <param-value>/interface/ViewLabelsForEntityWithoutDeleteLinks.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr5</param-name>
+            <param-value>/interface/SuggestedLabelsForEntity.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr6</param-name>
+            <param-value>/interface/GenerateAutocompleteLabelsListForEntity.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr7</param-name>
+            <param-value>/engine.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr8</param-name>
+            <param-value>/util.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>content.resolver.resource</param-name>
+            <param-value>com.atlassian.cache.servlet.resolver.ResourceStreamResolver</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource1</param-name>
+            <param-value>/includes/js/scriptaculous/lib/prototype.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource2</param-name>
+            <param-value>/includes/js/scriptaculous/src/util.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource3</param-name>
+            <param-value>/includes/js/scriptaculous/src/effects.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource5</param-name>
+            <param-value>/includes/js/uberlabels.js</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>editpage-javascript</servlet-name>
+        <servlet-class>com.atlassian.cache.servlet.CombinedCachingServlet</servlet-class>
+        <init-param>
+            <param-name>content.type</param-name>
+            <param-value>text/javascript</param-value>
+        </init-param>
+        <init-param>
+            <param-name>content.resolver.dwr</param-name>
+            <param-value>com.atlassian.cache.servlet.resolver.DwrContentResolver</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr1</param-name>
+            <param-value>/engine.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr2</param-name>
+            <param-value>/util.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr3</param-name>
+            <param-value>/interface/GenerateAutocompleteLabelsListForEntity.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr4</param-name>
+            <param-value>/interface/SuggestedLabelsForEntity.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>content.resolver.resource</param-name>
+            <param-value>com.atlassian.cache.servlet.resolver.ResourceStreamResolver</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource1</param-name>
+            <param-value>/includes/js/scriptaculous/lib/prototype.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource2</param-name>
+            <param-value>/includes/js/scriptaculous/src/util.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource3</param-name>
+            <param-value>/includes/js/scriptaculous/src/effects.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource4</param-name>
+            <param-value>/includes/js/uberlabels.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resource5</param-name>
+            <param-value>/includes/js/createeditpage-common.js</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>wysiwyg-javascript</servlet-name>
+        <servlet-class>com.atlassian.cache.servlet.CombinedCachingServlet</servlet-class>
+        <init-param>
+            <param-name>content.type</param-name>
+            <param-value>text/javascript</param-value>
+        </init-param>
+        <init-param>
+            <param-name>content.resolver.dwr</param-name>
+            <param-value>com.atlassian.cache.servlet.resolver.DwrContentResolver</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr1</param-name>
+            <param-value>/interface/WysiwygConverter.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr2</param-name>
+            <param-value>/interface/AjaxUserProfileEditor.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr5</param-name>
+            <param-value>/interface/DraftAjax.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr6</param-name>
+            <param-value>/interface/HeartbeatAjax.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr7</param-name>
+            <param-value>/engine.js</param-value>
+        </init-param>
+        <init-param>
+            <param-name>dwr8</param-name>
+            <param-value>/util.js</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>labels</servlet-name>
+        <servlet-class>com.atlassian.confluence.servlet.LabelServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>tinymce</servlet-name>
+        <servlet-class>com.atlassian.renderer.wysiwyg.TinyMCEServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>SeleneseServletSpike</servlet-name>
+        <servlet-class>com.thoughtworks.selenium.outbedded.CommandBridge</servlet-class>
+    </servlet>
+
+    <servlet>
+      <servlet-name>jcaptcha</servlet-name>
+      <servlet-class>com.atlassian.confluence.servlet.ImageCaptchaServlet</servlet-class>
+      <load-on-startup>0</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SeleneseServletSpike</servlet-name>
+        <url-pattern>/selenium-driver/driver</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>labels-javascript</servlet-name>
+        <url-pattern>/labels-javascript</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>editpage-javascript</servlet-name>
+        <url-pattern>/editpage-javascript</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>wysiwyg-javascript</servlet-name>
+        <url-pattern>/wysiwyg-javascript</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>action</servlet-name>
+        <url-pattern>*.action</url-pattern>
+    </servlet-mapping>
+
+    <!--
+         we pretty much have to map all CSS files to the action servlet, as a result
+         of a fun collaboration of an IE bug, and the short-sightedness of the servlet
+         spec.
+    -->
+    <servlet-mapping>
+        <servlet-name>css</servlet-name>
+        <url-pattern>*.css</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>velocity</servlet-name>
+        <url-pattern>*.vm</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>simple-display</servlet-name>
+        <url-pattern>/display/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>tiny-url</servlet-name>
+        <url-pattern>/x/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>file-server</servlet-name>
+        <url-pattern>/download/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>xmlrpc</servlet-name>
+        <url-pattern>/rpc/xmlrpc</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>trackback</servlet-name>
+        <url-pattern>/rpc/trackback/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>glue-soap</servlet-name>
+        <url-pattern>/rpc/soap/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>glue-soap</servlet-name>
+        <url-pattern>/rpc/soap-glue/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>axis-soap</servlet-name>
+        <url-pattern>/rpc/soap-axis/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>servlet-module-container-servlet</servlet-name>
+        <url-pattern>/plugins/servlet/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>labels</servlet-name>
+        <url-pattern>/label/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>tinymce</servlet-name>
+        <url-pattern>/includes/js/tiny_mce/zip_src</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>jcaptcha</servlet-name>
+      <url-pattern>/jcaptcha/*</url-pattern>
+    </servlet-mapping>
+
+    <session-config>
+        <session-timeout>60</session-timeout>
+    </session-config>
+
+    <welcome-file-list>
+        <welcome-file>default.jsp</welcome-file>
+    </welcome-file-list>
+
+    <!-- redirect all 500 errors to confluence error page -->
+    <error-page>
+        <error-code>500</error-code>
+        <location>/500page.jsp</location>
+    </error-page>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/fourohfour.action</location>
+    </error-page>
+
+</web-app>

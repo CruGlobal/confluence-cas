@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd" default-init-method="init">
+
+	<bean id="propertyPlaceholderConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location"
+			value="/WEB-INF/cas-client.properties" />
+	</bean>
+	
+	<bean id="ticketValidator"
+		class="org.jasig.cas.client.validation.UscmServiceTicketValidator">
+		<property name="proxyCallbackUrl"
+			value="${cas.server.proxyCallbackUrl}" />
+		<property name="proxyGrantingTicketStorage"
+			ref="proxyGrantingTicketStorage" />
+		<property name="casServerUrl" value="${cas.server.url}" />
+		<property name="httpClient">
+			<bean class="org.jasig.cas.util.HttpClient3FactoryBean" />
+		</property>
+	</bean>
+
+	<bean id="proxyGrantingTicketStorage"
+		class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl" />
+	
+	<bean
+		id="casHttpServletRequestWrapperFilter"
+		class="org.jasig.cas.client.web.filter.HttpServletRequestWrapperFilter" />
+		
+	<bean
+		id="casValidationFilter"
+		class="org.jasig.cas.client.web.filter.CasValidationFilter">
+		<property
+			name="ticketValidator"
+			ref="ticketValidator" />
+		<property
+			name="serverName"
+			value="${cas.client.name}" />
+	</bean>
+	
+	<bean
+		id="confluenceCasAuthenticationFilter"
+		class="org.soulwing.confluence.cas.ConfluenceCasFilter">
+       <!-- 
+         This parameter specifies the Confluence path used for login.  If this 
+         parameter is set, a user can navigate to the normal Confluence login 
+         page to bypass CAS and be authenticated via Atlassian-user.
+       -->
+		<property
+			name="loginPath"
+			value="${confluence.loginPath}" />
+       <!-- 
+         This parameter specifies the Confluence path used for logout.  If this 
+         parameter and the next parameter is set, clicking the Log Out link in 
+         Confluence causes a global CAS logout.
+       -->
+		<property
+			name="logoutPath"
+			value="${confluence.logoutPath}" />
+       <!-- 
+         This parameter specifies the global logout URL for your CAS service.  It's
+         used only if the previous logoutPath parameter is also configured.
+       -->
+		<property
+			name="logoutUrl"
+			value="${cas.server.url}logout" />
+       <!-- 
+         This parameter specifies a comma-delimited list of other Confluence paths that 
+         should bypass CAS authentication.  The value shown here bypassses CAS for the 
+         SOAP/XML-RPC API.
+       -->
+		<property
+			name="bypassPrefixes"
+			value="${confluence.bypassPrefixes}" />
+       <!-- 
+         This parameter should refer to a configured casAuthenticationFilter.  This
+         filter will handle requests that are not bypassed.
+       -->
+		<property
+			name="filter"
+			ref="casAuthenticationFilter" />
+	</bean>
+	
+	<bean
+		id="casAuthenticationFilter"
+		class="org.jasig.cas.client.web.filter.CasAuthenticationFilter">
+		<property
+			name="casServerLoginUrl"
+			value="${cas.server.url}login" />
+		<property
+			name="gateway"
+			value="${cas.server.gateway}" />
+		<property
+			name="renew"
+			value="${cas.server.renew}" />
+		<property
+			name="serverName"
+			value="${cas.client.name}" />
+	</bean>
+	
+	<!-- 
+	<bean
+		id="casAuthorizationFilter"
+		class="org.jasig.cas.client.web.filter.CasAuthorizationFilter">
+		<property
+			name="decider"
+			ref="decider" />
+	</bean>
+	
+	<bean
+		id="decider"
+		class="org.jasig.cas.client.authorization.DefaultCasAuthorizedDeciderImpl">
+		<property
+			name="users">
+			<list>
+				<value>battags</value>
+			</list>
+		</property>
+	</bean>
+	 -->
+</beans>
