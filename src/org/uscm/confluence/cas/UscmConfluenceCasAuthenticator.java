@@ -29,19 +29,22 @@ public class UscmConfluenceCasAuthenticator extends ConfluenceCasAuthenticator {
       if (user == null) {
 
         String[] groups;
+        String password;
         if (attributes.get("emplid") != null
             && !attributes.get("emplid").equals("")) {
           groups = new String[2];
           groups[1] = "ccc-employee";
+          password = attributes.get("emplid");
         } else {
           groups = new String[1];
+          password = attributes.get("firstName");
         }
         groups[0] = "confluence-users";
 
         UserAccessor userAccessor = getUserAccessor();
         
-        userAccessor.addUser(ssoGuid, 
-            String.valueOf(new Date().getTime()),
+        userAccessor.addUser(ssoGuid, // Username
+            password,
             username, attributes.get("firstName") + " "
                 + attributes.get("lastName"), groups);
         
