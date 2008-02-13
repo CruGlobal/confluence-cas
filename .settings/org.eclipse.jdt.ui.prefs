@@ -1,7 +1,7 @@
-#Wed Aug 09 16:12:54 EDT 2006
+#Tue Aug 28 18:06:46 EDT 2007
 eclipse.preferences.version=1
 formatter_profile=_confluence-cas
-formatter_settings_version=10
+formatter_settings_version=11
 org.eclipse.jdt.ui.exception.name=e
 org.eclipse.jdt.ui.gettersetter.use.is=true
 org.eclipse.jdt.ui.javadoc=false
