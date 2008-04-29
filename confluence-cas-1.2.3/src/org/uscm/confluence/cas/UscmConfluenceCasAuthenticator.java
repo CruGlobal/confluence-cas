@@ -8,6 +8,7 @@ import org.jasig.cas.client.validation.Assertion;
 import org.soulwing.confluence.cas.ConfluenceCasAuthenticator;
 
 import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.user.User;
 
 public class UscmConfluenceCasAuthenticator extends ConfluenceCasAuthenticator {
   private static final long serialVersionUID = 1L;
@@ -21,14 +22,13 @@ public class UscmConfluenceCasAuthenticator extends ConfluenceCasAuthenticator {
     Principal user = null;
     String username = assertion.getPrincipal().getId();
     Map<String, String> attributes = assertion.getAttributes();
-    String ssoGuid = attributes.get("ssoGuid");
+    String ssoGuid = attributes.get("ssoGuid").toLowerCase();
 
     if (ssoGuid != null) {
-      UserAccessor userAccessor = getUserAccessor();
-      
-      user = userAccessor.getUser(ssoGuid);
+      //log.warn("about to call getUser");
+      user = getUser(ssoGuid);
       if (user == null) {
-
+        //log.warn("user query returned null");
         String[] groups;
         String password;
         if (attributes.get("emplid") != null
@@ -42,19 +42,23 @@ public class UscmConfluenceCasAuthenticator extends ConfluenceCasAuthenticator {
         }
         groups[0] = "confluence-users";
 
-        userAccessor.addUser(ssoGuid, // Username
+        UserAccessor userAccessor = getUserAccessor();
+        user = userAccessor.addUser(ssoGuid, // Username
             password,
             username, attributes.get("firstName") + " "
                 + attributes.get("lastName"), groups);
         
-        user = getUser(ssoGuid);
         if (user == null) {
           log.error("Added user " + ssoGuid + ", but failed to find it!");
+        } else {
+          //log.warn(user.toString());
+          userAccessor.saveUser((User)user);
         }
       }
     } else {
       log.error("CAS Assertion contained no ssoGuid!");
     }
+    //log.warn("returning user");
     return user;
   }
 }
