@@ -41,7 +41,7 @@ public class BlockNewSessionFilter implements Filter {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-    if (httpRequest.getSession().isNew()) {
+    if (httpRequest.getSession().isNew() && httpRequest.getRequestURI().indexOf("plugins/servlet") == -1) {
       StringBuffer buffer = httpRequest.getRequestURL();
       String queryString = httpRequest.getQueryString();
       if (queryString != null) {
