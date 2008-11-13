@@ -38,7 +38,7 @@ public class FilterToBeanProxy implements Filter {
         final ServletResponse response, final FilterChain chain)
         throws IOException, ServletException {
       HttpServletRequest httpRequest = (HttpServletRequest)request;
-      if (httpRequest.getRequestURI().indexOf("plugins/servlet") == -1) {
+      if (httpRequest.getRequestURI().indexOf("plugins/servlet") == -1 && httpRequest.getRequestURI().indexOf("rpc/xmlrpc") == -1 ) {
         this.filter.doFilter(request, response, chain);
       } else {
         chain.doFilter(request, response);
