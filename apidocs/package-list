@@ -1,6 +1,7 @@
+org.jasig.cas.client.authentication
+org.jasig.cas.client.integration.atlassian
+org.jasig.cas.client.proxy
+org.jasig.cas.client.session
 org.jasig.cas.client.util
-org.soulwing.confluence.cas
-org.uscm.cas.client.util
-org.uscm.cas.client.validation
-org.uscm.cas.client.web.filter
+org.jasig.cas.client.validation
 org.uscm.confluence.cas
