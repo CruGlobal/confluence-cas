@@ -188,7 +188,7 @@ public final class CommonUtils {
             return encode ? response.encodeURL(service) : service;
         }
 
-        final StringBuffer buffer = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
 
         synchronized (buffer) {
             if (!serverName.startsWith("https://") && !serverName.startsWith("http://")) {
@@ -197,6 +197,12 @@ public final class CommonUtils {
 
             buffer.append(serverName);
             buffer.append(request.getRequestURI());
+            
+            // Hack to connect to Wiki directly without going through BigIP
+            if (request.getRequestURL().toString().startsWith("http://wiki.hart-w040.uscm.org")) {
+              buffer = new StringBuffer();
+              buffer.append(request.getRequestURL());
+            }
 
             if (CommonUtils.isNotBlank(request.getQueryString())) {
                 final int location = request.getQueryString().indexOf(

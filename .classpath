@@ -2,12 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/confluence-2.10.1.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api-2.3.jar"/>
-	<classpathentry kind="lib" path="lib/atlassian-seraph-0.38.2.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="lib/atlassian-bucket-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/atlassian-user-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian-seraph-2.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian-user-3.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/confluence-4.1.6.jar"/>
+	<classpathentry kind="lib" path="lib/confluence-bucket-4.1.6.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
