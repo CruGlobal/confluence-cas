@@ -196,7 +196,9 @@ public final class CommonUtils {
             }
 
             buffer.append(serverName);
-            buffer.append(request.getRequestURI());
+            String uri = request.getRequestURI();
+            uri = uri.replace("+", "%20");
+            buffer.append(uri);
             
             // Hack to connect to Wiki directly without going through BigIP
             if (request.getRequestURL().toString().startsWith("http://wiki.hart-w040.uscm.org")) {
